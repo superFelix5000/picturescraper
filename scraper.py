@@ -11,7 +11,7 @@ parser = argparse.ArgumentParser(
     description = 'scrapes the images from a certain homepage')
 parser.add_argument("--url", required=True, help="url of the homepage to scrape")
 args = vars(parser.parse_args())
-parsedUrl = urlparse(args['url'])
+parsedBaseUrl = urlparse(args['url'])
 
 def download_images(url, visited):
     # Fetch the HTML of the website
@@ -29,15 +29,24 @@ def download_images(url, visited):
         
         # Download the image
         img_data = requests.get(img_url).content
-        filename = os.path.join('images', os.path.basename(img_url))
-        with open(filename, 'wb') as f:
-            f.write(img_data)
-            print(f"Downloaded {img_url} to {filename}")
+        parsedImageUrl = urlparse(os.path.dirname(img_url))
+        # path = parsedImageUrl.path.replace('/', '\\')    
+        path = parsedImageUrl.path    
+        if (path):
+            # path = os.path.relpath(path)
+            path = os.path.join('images', path[1:])
+            if (not os.path.exists(path)):
+                os.makedirs(path)
+        filename = os.path.join(path, os.path.basename(img_url))
+        if not os.path.isfile(filename):
+            with open(filename, 'wb') as f:
+                f.write(img_data)
+                print(f"Downloaded {img_url} to {filename}")
     
     # Follow all links on the website
     for link in soup.find_all('a'):
         link_url = link.get('href')
-        if (not link_url or link_url.startswith('mailto')) or not (parsedUrl.netloc in link_url):
+        if (not link_url or link_url.startswith('mailto')) or not (parsedBaseUrl.netloc in link_url) or (link_url.endswith('.pdf')):
             continue
         
         # Construct full URL using urljoin
