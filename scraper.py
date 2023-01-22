@@ -29,8 +29,8 @@ def download_images(url, visited):
         
         # Download the image
         img_data = requests.get(img_url).content
+        # parse the image url, get only the path out of it, check if it exists and if not create the folder structure
         parsedImageUrl = urlparse(os.path.dirname(img_url))
-        # path = parsedImageUrl.path.replace('/', '\\')    
         path = parsedImageUrl.path    
         if (path):
             # path = os.path.relpath(path)
@@ -38,6 +38,7 @@ def download_images(url, visited):
             if (not os.path.exists(path)):
                 os.makedirs(path)
         filename = os.path.join(path, os.path.basename(img_url))
+        # only create the file if it doesn't exist yet
         if not os.path.isfile(filename):
             with open(filename, 'wb') as f:
                 f.write(img_data)
@@ -65,4 +66,4 @@ if not os.path.exists('images'):
     os.makedirs('images')
 
 # Start the image download at the website's root
-download_images('http://www.klaudiakottek.de/archiv/archiv.htm', visited)
+download_images(args['url'], visited)
