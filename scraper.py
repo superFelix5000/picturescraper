@@ -37,6 +37,8 @@ def download_images(url, visited):
             path = os.path.join('images', path[1:])
             if (not os.path.exists(path)):
                 os.makedirs(path)
+        else:
+            path = 'images'
         filename = os.path.join(path, os.path.basename(img_url))
         # only create the file if it doesn't exist yet
         if not os.path.isfile(filename):
